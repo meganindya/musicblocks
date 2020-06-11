@@ -53,7 +53,8 @@ const SPECIALINPUTS = [
     "accidentalname",
     "temperamentname",
     "noisename",
-    "customNote"
+    "customNote",
+    "grid"
 ];
 const WIDENAMES = [
     "intervalname",
@@ -83,7 +84,8 @@ const PIEMENUS = [
     "modename",
     "temperamentname",
     "noisename",
-    "customNote"
+    "customNote",
+    "grid"
 ];
 
 // Define block instance objects and any methods that are intra-block.
@@ -553,7 +555,7 @@ function Block(protoblock, blocks, overrideName) {
                     turtle++
                 ) {
                     if (
-                        that.blocks.turtles.turtleList[turtle].getStartBlock()
+                        that.blocks.turtles.turtleList[turtle].startBlock
                             === that
                     ) {
                         that.blocks.turtles.turtleList[turtle].resizeDecoration(
@@ -1191,6 +1193,9 @@ function Block(protoblock, blocks, overrideName) {
                         break;
                     case "temperamentname":
                         this.value = "equal";
+                        break;
+                    case "grid":
+                        this.value = "Cartesian";
                         break;
                 }
             }
@@ -3164,7 +3169,7 @@ function Block(protoblock, blocks, overrideName) {
                     turtle++
                 ) {
                     if (
-                        this.blocks.turtles.turtleList[turtle].getStartBlock()
+                        this.blocks.turtles.turtleList[turtle].startBlock
                             === this
                     ) {
                         this.blocks.turtles.turtleList[
@@ -3617,6 +3622,30 @@ function Block(protoblock, blocks, overrideName) {
             let booleanValues = [true, false];
 
             this._piemenuBoolean(booleanLabels, booleanValues, selectedvalue);
+        } else if (this.name === "grid") {
+
+            selectedvalue = this.value;
+
+            let Labels = [
+                _("Cartesian"),
+                _("polar"),
+                _("Cartesian+polar") ,
+                _("treble") ,
+                _("grand staff") ,
+                _("mezzo-soprano") ,
+                _("alto") ,
+                _("tenor"),
+                _("bass") ,
+                _("none")
+            ];
+            let Values = Labels ;
+
+            this._piemenuBasic(
+                Labels,
+                Values,
+                selectedvalue,
+                platformColor.piemenuBasic
+            );
         } else {
             // If the number block is connected to a pitch block, then
             // use the pie menu for octaves. Other special cases as well.
@@ -4845,6 +4874,13 @@ function Block(protoblock, blocks, overrideName) {
     this._piemenuNthModalPitch = function(noteValues, note) {
         // wheelNav pie menu for scale degree pitch selection
 
+        // check if a non-integer value is connected to note argument
+        // Pie menu would crash; so in such case navigate to closest integer
+
+        if (note % 1 !== 0) {
+            note = Math.floor(note + 0.5);
+        }
+
         if (this.blocks.stageClick) {
             return;
         }
@@ -5647,6 +5683,11 @@ function Block(protoblock, blocks, overrideName) {
         let i = wheelValues.indexOf(selectedValue);
         if (i === -1) {
             i = 0;
+        }
+
+        // In case of float value, navigate to the nearest integer
+        if (selectedValue % 1 !== 0) {
+            i = wheelValues.indexOf(Math.floor(selectedValue + 0.5));
         }
 
         this._numberWheel.navigateWheel(i);

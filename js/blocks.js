@@ -45,6 +45,7 @@ function Blocks(activity) {
         storage = localStorage;
     }
 
+    this.activity = activity;
     this.canvas = null;
     this.stage = null;
     this.refreshCanvas = null;
@@ -2328,6 +2329,11 @@ function Blocks(activity) {
             return true;
         }
         if (
+            type1 === "gridout" && type2 ==="gridin"
+        ) {
+            return true;
+        }
+        if (
             type2 === "notein" &&
             ["solfegeout", "textout", "noteout"].indexOf(type1) !== -1
         ) {
@@ -3465,9 +3471,9 @@ function Blocks(activity) {
                         } else {
                             that.blockList[c].privateData = args[1];
                             if (args[1] === "box1") {
-                                that.blockList[c].overrideName = _("box 1");
+                                that.blockList[c].overrideName = _("box1");
                             } else if (args[1] === "box2") {
-                                that.blockList[c].overrideName = _("box 2");
+                                that.blockList[c].overrideName = _("box2");
                             } else {
                                 that.blockList[c].overrideName = args[1];
                             }
@@ -3928,9 +3934,9 @@ function Blocks(activity) {
                 if (this.blockList[blk].privateData === oldName) {
                     this.blockList[blk].privateData = newName;
                     if (newName === "box1") {
-                        this.blockList[blk].overrideName = _("box 1");
+                        this.blockList[blk].overrideName = _("box1");
                     } else if (newName === "box2") {
-                        this.blockList[blk].overrideName = _("box 2");
+                        this.blockList[blk].overrideName = _("box2");
                     } else {
                         this.blockList[blk].overrideName = newName;
                     }
@@ -3962,9 +3968,9 @@ function Blocks(activity) {
                 if (this.blockList[blk].privateData === oldName) {
                     this.blockList[blk].privateData = newName;
                     if (newName === "box1") {
-                        this.blockList[blk].overrideName = _("box 1");
+                        this.blockList[blk].overrideName = _("box1");
                     } else if (newName === "box2") {
-                        this.blockList[blk].overrideName = _("box 2");
+                        this.blockList[blk].overrideName = _("box2");
                     } else {
                         this.blockList[blk].overrideName = newName;
                     }
@@ -3996,9 +4002,9 @@ function Blocks(activity) {
                 if (this.blockList[blk].privateData === oldName) {
                     this.blockList[blk].privateData = newName;
                     if (newName === "box1") {
-                        this.blockList[blk].overrideName = _("box 1");
+                        this.blockList[blk].overrideName = _("box1");
                     } else if (newName === "box2") {
-                        this.blockList[blk].overrideName = _("box 2");
+                        this.blockList[blk].overrideName = _("box2");
                     } else {
                         this.blockList[blk].overrideName = newName;
                     }
@@ -5939,9 +5945,9 @@ function Blocks(activity) {
                         that.blockList[thisBlock].privateData = value;
                         that.blockList[thisBlock].value = null;
                         if (value === "box1") {
-                            that.blockList[thisBlock].overrideName = _("box 1");
+                            that.blockList[thisBlock].overrideName = _("box1");
                         } else if (value === "box2") {
-                            that.blockList[thisBlock].overrideName = _("box 2");
+                            that.blockList[thisBlock].overrideName = _("box2");
                         } else {
                             that.blockList[thisBlock].overrideName = value;
                         }
@@ -5964,9 +5970,9 @@ function Blocks(activity) {
                         that.blockList[thisBlock].privateData = value;
 
                         if (value === "box1") {
-                            that.blockList[thisBlock].overrideName = _("box 1");
+                            that.blockList[thisBlock].overrideName = _("box1");
                         } else if (value === "box2") {
-                            that.blockList[thisBlock].overrideName = _("box 2");
+                            that.blockList[thisBlock].overrideName = _("box2");
                         } else {
                             that.blockList[thisBlock].overrideName = value;
                         }
@@ -6219,6 +6225,7 @@ function Blocks(activity) {
                 case "oscillatortype":
                 case "accidentalname":
                 case "intervalname":
+                case "grid":
                 case "boolean":
                     var postProcess = function(args) {
                         var thisBlock = args[0];
@@ -6687,7 +6694,7 @@ function Blocks(activity) {
                     firstTurtle < that.turtles.turtleList.length;
                     firstTurtle++
                 ) {
-                    if (!that.turtles.turtleList[firstTurtle].trash) {
+                    if (!that.turtles.turtleList[firstTurtle].inTrash) {
                         break;
                     }
                 }
@@ -7063,14 +7070,14 @@ function Blocks(activity) {
             turtle = myBlock.value;
             var turtleNotInTrash = 0;
             for (var i = 0; i < this.turtles.turtleList.length; i++) {
-                if (!this.turtles.turtleList[i].trash) {
+                if (!this.turtles.turtleList[i].inTrash) {
                     turtleNotInTrash += 1;
                 }
             }
 
             if (turtle != null && turtleNotInTrash > 1) {
                 console.debug("putting turtle " + turtle + " in the trash");
-                this.turtles.turtleList[turtle].trash = true;
+                this.turtles.turtleList[turtle].inTrash = true;
                 this.turtles.turtleList[turtle].container.visible = false;
             } else {
                 this.errorMsg(

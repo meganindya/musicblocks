@@ -1401,7 +1401,7 @@ class Logo {
             // turtle, i.e., which turtle should we use?
             let turtle = 0;
             while (
-                this.turtles.turtleList[turtle].trash &&
+                this.turtles.turtleList[turtle].inTrash &&
                 turtle < this.turtles.turtleList.length
             ) {
                 ++turtle;
@@ -1469,7 +1469,7 @@ class Logo {
                         this.unhighlightQueue[turtle] = [];
                         this.parameterQueue[turtle] = [];
 
-                        if (!this.turtles.turtleList[turtle].trash) {
+                        if (!this.turtles.turtleList[turtle].inTrash) {
                             if (this.turtles.turtleList[turtle].running) {
                                 console.debug("already running...");
                             }
@@ -1700,6 +1700,7 @@ class Logo {
                 ) {
                     nextFlow = last(logo.blocks.blockList[blk].connections);
                 } else {
+                    nextFlow = logo.blocks.blockList[blk].connections[0];
                     if (
                         logo.blocks.blockList[nextFlow].name === "action" ||
                         logo.blocks.blockList[nextFlow].name === "backward"

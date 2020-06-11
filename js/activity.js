@@ -35,6 +35,12 @@ function Activity() {
 
     let cartesianBitmap = null;
     let polarBitmap = null;
+    let trebleBitmap = null;
+    let grandBitmap = null;
+    let sopranoBitmap = null;
+    let altoBitmap = null;
+    let tenorBitmap = null;
+    let bassBitmap = null;
 
     let ERRORARTWORK = [
         "emptybox",
@@ -1345,33 +1351,82 @@ function Activity() {
     // };
 
     /*
-     * Hides all grids (Cartesian/polar)
+     * Hides all grids (Cartesian/polar/treble/et al.)
      */
     hideGrids = function() {
         turtles.setGridLabel(_("show Cartesian"));
         _hideCartesian();
         _hidePolar();
+	if (_THIS_IS_MUSIC_BLOCKS_) {
+	    _hideTreble();
+	    _hideGrand();
+	    _hideSoprano();
+	    _hideAlto();
+	    _hideTenor();
+	    _hideBass();
+	}
     };
 
     /*
-     * Renders Cartesian/Polar grids and changes button labels accordingly
+     * Renders Cartesian/Polar/Treble/et al. grids and changes button
+     * labels accordingly
      */
-    _doCartesianPolar = function() {
+    let _doCartesianPolar = () => {
         if (cartesianBitmap.visible && polarBitmap.visible) {
             _hideCartesian();
-            //.TRANS: hide Polar coordinate overlay grid
-            turtles.setGridLabel(_("hide Polar"));
+	    if (_THIS_IS_MUSIC_BLOCKS_) {
+		//.TRANS: show treble clef
+		turtles.setGridLabel(_("show treble"));
+	    } else {
+		//.TRANS: hide Polar coordinate overlay grid
+		turtles.setGridLabel(_("hide Polar"));
+	    }
         } else if (!cartesianBitmap.visible && polarBitmap.visible) {
             _hidePolar();
-            //.TRANS: show Cartesian coordinate overlay grid
+	    if (_THIS_IS_MUSIC_BLOCKS_) {
+		this._showTreble();
+		//.TRANS: show bass clef
+		turtles.setGridLabel(_("show bass"));
+	    } else {
+		//.TRANS: show Cartesian coordinate overlay grid
+		turtles.setGridLabel(_("show Cartesian"));
+	    }
+        } else if (trebleBitmap.visible) {
+            _hideTreble();
+	    this._showGrand();
+            //.TRANS: show mezzo-soprano staff
+            turtles.setGridLabel(_("show mezzo-soprano"));
+        } else if (grandBitmap.visible) {
+            _hideGrand();
+	        this._showSoprano();
+            //.TRANS: show alto clef
+            turtles.setGridLabel(_("show alto"));
+        } else if (sopranoBitmap.visible) {
+            _hideSoprano();
+	        this._showAlto();
+            //.TRANS: show tenor clef
+            turtles.setGridLabel(_("show tenor"));
+        } else if (altoBitmap.visible) {
+            _hideAlto();
+	        this._showTenor();
+            //.TRANS: show bass clef
+            turtles.setGridLabel(_("show bass"));
+        } else if (tenorBitmap.visible) {
+            _hideTenor();
+	        this._showBass();
+            //.TRANS: hide bass clef
+            turtles.setGridLabel(_("hide bass"));
+        } else if (bassBitmap.visible) {
+            _hideBass();
             turtles.setGridLabel(_("show Cartesian"));
         } else if (!cartesianBitmap.visible && !polarBitmap.visible) {
-            _showCartesian();
+            this._showCartesian();
+            //.TRANS: show Polar coordinate overlay grid
             turtles.setGridLabel(_("show Polar"));
         } else if (cartesianBitmap.visible && !polarBitmap.visible) {
-            _showPolar();
-            //.TRANS: show Polar coordinate overlay grid
-            turtles.setGridLabel(_("hide Cartersian"));
+            this._showPolar();
+            //.TRANS: hide Cartesian coordinate overlay grid
+            turtles.setGridLabel(_("hide Cartesian"));
         }
 
         update = true;
@@ -2568,6 +2623,18 @@ function Activity() {
         cartesianBitmap.y = canvas.height / (2 * turtleBlocksScale) - 450;
         polarBitmap.x = canvas.width / (2 * turtleBlocksScale) - 600;
         polarBitmap.y = canvas.height / (2 * turtleBlocksScale) - 450;
+        trebleBitmap.x = canvas.width / (2 * turtleBlocksScale) - 600;
+        trebleBitmap.y = canvas.height / (2 * turtleBlocksScale) - 450;
+        grandBitmap.x = canvas.width / (2 * turtleBlocksScale) - 600;
+        grandBitmap.y = canvas.height / (2 * turtleBlocksScale) - 450;
+        sopranoBitmap.x = canvas.width / (2 * turtleBlocksScale) - 600;
+        sopranoBitmap.y = canvas.height / (2 * turtleBlocksScale) - 450;
+        altoBitmap.x = canvas.width / (2 * turtleBlocksScale) - 600;
+        altoBitmap.y = canvas.height / (2 * turtleBlocksScale) - 450;
+        tenorBitmap.x = canvas.width / (2 * turtleBlocksScale) - 600;
+        tenorBitmap.y = canvas.height / (2 * turtleBlocksScale) - 450;
+        bassBitmap.x = canvas.width / (2 * turtleBlocksScale) - 600;
+        bassBitmap.y = canvas.height / (2 * turtleBlocksScale) - 450;
         update = true;
 
         // Hide tooltips on mobile
@@ -2641,7 +2708,7 @@ function Activity() {
             blocks.blockList[thisBlock].name === "drum"
         ) {
             let turtle = blocks.blockList[thisBlock].value;
-            turtles.turtleList[turtle].trash = false;
+            turtles.turtleList[turtle].inTrash = false;
             turtles.turtleList[turtle].container.visible = true;
         } else if (blocks.blockList[thisBlock].name === "action") {
             // We need to add a palette entry for this action.
@@ -2789,7 +2856,7 @@ function Activity() {
                 let turtle = blocks.blockList[blk].value;
                 if (!blocks.blockList[blk].trash && turtle != null) {
                     console.debug("sending turtle " + turtle + " to trash");
-                    turtles.turtleList[turtle].trash = true;
+                    turtles.turtleList[turtle].inTrash = true;
                     turtles.turtleList[turtle].container.visible = false;
                 }
             } else if (blocks.blockList[blk].name === "action") {
@@ -3468,7 +3535,7 @@ function Activity() {
     /*
      * Shows cartesian grid
      */
-    _showCartesian = function() {
+    this._showCartesian = function() {
         cartesianBitmap.visible = true;
         cartesianBitmap.updateCache();
         update = true;
@@ -3486,9 +3553,117 @@ function Activity() {
     /*
      * Shows polar grid
      */
-    _showPolar = function() {
+    this._showPolar = function() {
         polarBitmap.visible = true;
         polarBitmap.updateCache();
+        update = true;
+    };
+
+    /*
+     * Hides musical treble staff
+     */
+    _hideTreble = function() {
+        trebleBitmap.visible = false;
+        trebleBitmap.updateCache();
+        update = true;
+    };
+
+    /*
+     * Shows musical treble staff
+     */
+    this._showTreble = function() {
+        trebleBitmap.visible = true;
+        trebleBitmap.updateCache();
+        update = true;
+    };
+
+    /*
+     * Hides musical grand staff
+     */
+    _hideGrand = function() {
+        grandBitmap.visible = false;
+        grandBitmap.updateCache();
+        update = true;
+    };
+
+    /*
+     * Shows musical grand staff
+     */
+    this._showGrand = function() {
+        grandBitmap.visible = true;
+        grandBitmap.updateCache();
+        update = true;
+    };
+
+    /*
+     * Hides musical soprano staff
+     */
+    _hideSoprano = function() {
+        sopranoBitmap.visible = false;
+        sopranoBitmap.updateCache();
+        update = true;
+    };
+
+    /*
+     * Shows musical soprano staff
+     */
+    this._showSoprano = function() {
+        sopranoBitmap.visible = true;
+        sopranoBitmap.updateCache();
+        update = true;
+    };
+
+    /*
+     * Hides musical alto staff
+     */
+    _hideAlto = function() {
+        altoBitmap.visible = false;
+        altoBitmap.updateCache();
+        update = true;
+    };
+
+    /*
+     * Shows musical alto staff
+     */
+    this._showAlto = function() {
+        altoBitmap.visible = true;
+        altoBitmap.updateCache();
+        update = true;
+    };
+
+    /*
+     * Hides musical tenor staff
+     */
+    _hideTenor = function() {
+        tenorBitmap.visible = false;
+        tenorBitmap.updateCache();
+        update = true;
+    };
+
+    /*
+     * Shows musical tenor staff
+     */
+    this._showTenor = function() {
+        tenorBitmap.visible = true;
+        tenorBitmap.updateCache();
+        update = true;
+    };
+
+    /*
+     * Hides musical bass staff
+     */
+    _hideBass = function() {
+        bassBitmap.visible = false;
+        bassBitmap.updateCache();
+        update = true;
+    };
+
+    /*
+     * Shows musical bass staff
+     */
+    this._showBass = function() {
+        bassBitmap.visible = true;
+        bassBitmap.updateCache();
         update = true;
     };
 
@@ -3553,6 +3728,7 @@ function Activity() {
                         let turtle = turtles.turtleList[myBlock.value];
                         if (turtle == null) {
                             args = {
+                                id: Infinity,
                                 collapsed: false,
                                 xcor: 0,
                                 ycor: 0,
@@ -3564,6 +3740,7 @@ function Activity() {
                             };
                         } else {
                             args = {
+                                id: turtle.id,
                                 collapsed: myBlock.collapsed,
                                 xcor: turtle.x,
                                 ycor: turtle.y,
@@ -4673,7 +4850,7 @@ function Activity() {
         boundary = new Boundary();
         boundary.setStage(blocksContainer).init();
 
-        blocks = new Blocks();
+        blocks = new Blocks(this);
         blocks
             .setCanvas(canvas)
             .setStage(blocksContainer)
@@ -5493,6 +5670,30 @@ function Activity() {
         polarBitmap = _createGrid(
             "data:image/svg+xml;base64," +
                 window.btoa(unescape(encodeURIComponent(POLAR)))
+        );
+        trebleBitmap = _createGrid(
+            "data:image/svg+xml;base64," +
+                window.btoa(unescape(encodeURIComponent(TREBLE)))
+        );
+        grandBitmap = _createGrid(
+            "data:image/svg+xml;base64," +
+                window.btoa(unescape(encodeURIComponent(GRAND)))
+        );
+        sopranoBitmap = _createGrid(
+            "data:image/svg+xml;base64," +
+                window.btoa(unescape(encodeURIComponent(SOPRANO)))
+        );
+        altoBitmap = _createGrid(
+            "data:image/svg+xml;base64," +
+                window.btoa(unescape(encodeURIComponent(ALTO)))
+        );
+        tenorBitmap = _createGrid(
+            "data:image/svg+xml;base64," +
+                window.btoa(unescape(encodeURIComponent(TENOR)))
+        );
+        bassBitmap = _createGrid(
+            "data:image/svg+xml;base64," +
+                window.btoa(unescape(encodeURIComponent(BASS)))
         );
 
         let URL = window.location.href;

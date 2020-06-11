@@ -200,7 +200,79 @@ function setupSensorsBlocks() {
         }
 
         arg(logo, turtle) {
-            return "click" + logo.turtles.turtleList[turtle].name;
+            return "click" + logo.turtles.turtleList[turtle].id;
+        }
+    }
+
+    class MyCursoroverBlock extends ValueBlock {
+        constructor() {
+            super("mycursorover", _("CursorOver"));
+            this.setPalette("sensors");
+            this.beginnerBlock(true);
+
+            this.setHelpString([
+                _("The CursorOver block returns hover associated event"),
+                "documentation",
+                null,
+            ]);
+        }
+
+        arg(logo, turtle) {
+            return "CursorOver" + logo.turtles.turtleList[turtle].id;
+        }
+    }
+
+    class MyCursoroutBlock extends ValueBlock {
+        constructor() {
+            super("mycursorout", _("CursorOut"));
+            this.setPalette("sensors");
+            this.beginnerBlock(true);
+
+            this.setHelpString([
+                _("The CursorOut block returns hover associated event"),
+                "documentation",
+                null,
+            ]);
+        }
+
+        arg(logo, turtle) {
+            return "CursorOut" + logo.turtles.turtleList[turtle].id;
+        }
+    }
+
+    class MyCursordownBlock extends ValueBlock {
+        constructor() {
+            super("mycursordown", _("CursorDown"));
+            this.setPalette("sensors");
+            this.beginnerBlock(true);
+
+            this.setHelpString([
+                _("The CursorDown Block returns the CursorDown event "),
+                "documentation",
+                null,
+            ]);
+        }
+
+        arg(logo, turtle) {
+            return "CursorDown" + logo.turtles.turtleList[turtle].id;
+        }
+    }
+
+    class MyCursorupBlock extends ValueBlock {
+        constructor() {
+            super("mycursorup", _("CursorUp"));
+            this.setPalette("sensors");
+            this.beginnerBlock(true);
+
+            this.setHelpString([
+                _("The CursorUp Block returns the CursorUp event "),
+                "documentation",
+                null,
+            ]);
+        }
+
+        arg(logo, turtle) {
+            return "CursorUp" + logo.turtles.turtleList[turtle].id;
         }
     }
 
@@ -514,6 +586,10 @@ function setupSensorsBlocks() {
     new PitchnessBlock().setup();
     new LoudnessBlock().setup();
     new MyClickBlock().setup();
+    new MyCursoroverBlock().setup();
+    new MyCursoroutBlock().setup();
+    new MyCursorupBlock().setup();
+    new MyCursordownBlock().setup();
     new GetBlueBlock().setup();
     new GetGreenBlock().setup();
     new GetRedBlock().setup();

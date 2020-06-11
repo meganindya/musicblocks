@@ -454,6 +454,12 @@ function Toolbar() {
                 languageBox.ayc_onclick();
             };
 
+            var quz = docById("quz");
+
+            quz.onclick = function() {
+                languageBox.quz_onclick();
+            };
+
             var gug = docById("gug");
 
             gug.onclick = function() {
@@ -535,6 +541,7 @@ function Toolbar() {
             ["zhCN", _("中文"), "innerHTML"],
             ["th", _("ภาษาไทย"), "innerHTML"],
             ["ayc", _("aymara"), "innerHTML"],
+	    ["quz", _("quechua"), "innerHTML"],
             ["gug", _("guarani"), "innerHTML"],
             ["hi", _("हिंदी"), "innerHTML"],
             ["ibo", _("igbo"), "innerHTML"],
@@ -620,6 +627,7 @@ function Toolbar() {
             ["zhCN", _("中文"), "innerHTML"],
             ["th", _("ภาษาไทย"), "innerHTML"],
             ["ayc", _("aymara"), "innerHTML"],
+            ["quz", _("quechua"), "innerHTML"],
             ["gug", _("guarani"), "innerHTML"],
             ["hi", _("हिंदी"), "innerHTML"],
             ["ibo", _("igbo"), "innerHTML"],

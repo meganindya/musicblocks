@@ -63,7 +63,7 @@ class Turtles {
     addTurtle(startBlock, infoDict) {
         this.add(startBlock, infoDict);
         if (this.isShrunk()) {
-            let t = last(this.getTurtleList());
+            let t = last(this.turtleList);
             t.container.scaleX = SCALEFACTOR;
             t.container.scaleY = SCALEFACTOR;
             t.container.scale = SCALEFACTOR;
@@ -80,8 +80,8 @@ class Turtles {
     add(startBlock, infoDict) {
         if (startBlock != null) {
             console.debug("adding a new turtle " + startBlock.name);
-            if (startBlock.value !== this.getTurtleList().length) {
-                startBlock.value = this.getTurtleList().length;
+            if (startBlock.value !== this.turtleList.length) {
+                startBlock.value = this.turtleList.length;
                 console.debug("turtle #" + startBlock.value);
             }
         } else {
@@ -97,11 +97,20 @@ class Turtles {
         }
 
         let i = this.getTurtleList().length % 10;
+
+        // Unique ID of turtle is time of instantiation for the first time
+        let id =
+            blkInfoAvailable &&
+            "id" in infoDict &&
+            infoDict["id"] !== Infinity ?
+                infoDict["id"] : Date.now();
+
         let turtleName =
             blkInfoAvailable && "name" in infoDict ?
                 infoDict["name"] : _("start");
-        let newTurtle = new Turtle(turtleName, this);
-        newTurtle.setStartBlock(startBlock);
+
+        let newTurtle = new Turtle(id, turtleName, this);
+        newTurtle.startBlock = startBlock;
 
         if (blkInfoAvailable) {
             if ("xcor" in infoDict) {
@@ -112,7 +121,7 @@ class Turtles {
             }
         }
 
-        this.getTurtleList().push(newTurtle);
+        this.turtleList.push(newTurtle);
 
         let turtlesStage = this.getStage();
 
@@ -122,10 +131,10 @@ class Turtles {
         newTurtle.penstrokes = new createjs.Bitmap();
         turtlesStage.addChild(newTurtle.penstrokes);
 
-        newTurtle.setContainer(new createjs.Container());
-        turtlesStage.addChild(newTurtle.getContainer());
-        newTurtle.getContainer().x = this.turtleX2screenX(newTurtle.x);
-        newTurtle.getContainer().y = this.turtleY2screenY(newTurtle.y);
+        newTurtle.container = new createjs.Container();
+        turtlesStage.addChild(newTurtle.container);
+        newTurtle.container.x = this.turtleX2screenX(newTurtle.x);
+        newTurtle.container.y = this.turtleY2screenY(newTurtle.y);
 
         // Ensure that the buttons are on top
         turtlesStage.removeChild(this._expandButton);
@@ -176,6 +185,10 @@ class Turtles {
                 y: newTurtle.container.y - event.stageY / scale
             };
 
+            if (newTurtle.running) {
+                turtlesStage.dispatchEvent("CursorDown" + newTurtle.id);
+            }
+
             newTurtle.container.removeAllEventListeners("pressmove");
             newTurtle.container.on("pressmove", event => {
                 if (newTurtle.running) {
@@ -190,14 +203,21 @@ class Turtles {
             });
         });
 
+        newTurtle.container.on("pressup", event => {
+            if (newTurtle.running) {
+                turtlesStage.dispatchEvent("CursorUp" + newTurtle.id);
+            }
+        });
+
         newTurtle.container.on("click", event => {
             // If turtles listen for clicks then they can be used as buttons
             console.debug("--> [click " + newTurtle.name + "]");
-            turtlesStage.dispatchEvent("click" + newTurtle.name);
+            turtlesStage.dispatchEvent("click" + newTurtle.id);
         });
 
         newTurtle.container.on("mouseover", event => {
             if (newTurtle.running) {
+                turtlesStage.dispatchEvent("CursorOver" + newTurtle.id);
                 return;
             }
 
@@ -209,6 +229,7 @@ class Turtles {
 
         newTurtle.container.on("mouseout", event => {
             if (newTurtle.running) {
+                turtlesStage.dispatchEvent("CursorOut" + newTurtle.id);
                 return;
             }
 
@@ -257,10 +278,10 @@ class Turtles {
      * @returns {void}
      */
     markAsStopped() {
-        for (let turtle in this.getTurtleList()) {
-            this.getTurtleList()[turtle].running = false;
+        for (let turtle in this.turtleList) {
+            this.turtleList[turtle].running = false;
             // Make sure the blink is really stopped
-            // getTurtleList()[turtle].stopBlink();
+            // turtleList[turtle].stopBlink();
         }
 
         this.refreshCanvas();
@@ -296,7 +317,13 @@ class Turtles {
             this._borderContainer = new createjs.Container();
 
             // List of all of the turtles, one for each start block
-            this.turtleList = [];
+            this._turtleList = [];
+
+            /**
+             * @todo Add methods to initialize the turtleList, directly access the
+             * required turtle rather than having to "get" the turtleList itself,
+             * and return the length of the turtleList (number of Turtles).
+             */
         }
 
         /**
@@ -396,8 +423,8 @@ class Turtles {
         /**
          * @returns {Object[]} list of Turtle objects
          */
-        getTurtleList() {
-            return this.turtleList;
+        get turtleList() {
+            return this._turtleList;
         }
 
         /**
@@ -435,15 +462,6 @@ class Turtles {
             this._w = 1200;                 // stage width
             this._h = 900;                  // stage height
 
-            /**
-             * These 3 are used by Turtle only.
-             *
-             * @todo reorganize position of these
-             */
-            this.gx = null;
-            this.gy = null;
-            this.canvas1 = null;
-
             this._isShrunk = false;         // whether canvas is collapsed
 
             /**
@@ -451,16 +469,16 @@ class Turtles {
              */
             this._expandedBoundary = null;
             this._collapsedBoundary = null;
-            this._expandButton = null;      // add method
+            this._expandButton = null;      // used by add method
             this._expandLabel = null;
             this._expandLabelBG = null;
-            this._collapseButton = null;    // add method
+            this._collapseButton = null;    // used by add method
             this._collapseLabel = null;
             this._collapseLabelBG = null;
-            this._clearButton = null;       // add method
+            this._clearButton = null;       // used by add method
             this._clearLabel = null;
             this._clearLabelBG = null;
-            this._gridButton = null;        // add method
+            this._gridButton = null;        // used by add method
             this._gridLabel = null;
             this._gridLabelBG = null;
 
@@ -650,11 +668,10 @@ class Turtles {
                 turtlesStage.y = 55 + LEADING + 6;
                 this._isShrunk = true;
 
-                let turtleList = this.getTurtleList();
-                for (let i = 0; i < turtleList.length; i++) {
-                    turtleList[i].container.scaleX = SCALEFACTOR;
-                    turtleList[i].container.scaleY = SCALEFACTOR;
-                    turtleList[i].container.scale = SCALEFACTOR;
+                for (let i = 0; i < this.turtleList.length; i++) {
+                    this.turtleList[i].container.scaleX = SCALEFACTOR;
+                    this.turtleList[i].container.scaleY = SCALEFACTOR;
+                    this.turtleList[i].container.scale = SCALEFACTOR;
                 }
 
                 this._clearButton.scaleX = SCALEFACTOR;
@@ -1112,11 +1129,10 @@ class Turtles {
                         turtlesStage.y = 0;
                         this._isShrunk = false;
 
-                        let turtleList = this.getTurtleList();
-                        for (let i = 0; i < turtleList.length; i++) {
-                            turtleList[i].container.scaleX = 1;
-                            turtleList[i].container.scaleY = 1;
-                            turtleList[i].container.scale = 1;
+                        for (let i = 0; i < this.turtleList.length; i++) {
+                            this.turtleList[i].container.scaleX = 1;
+                            this.turtleList[i].container.scaleY = 1;
+                            this.turtleList[i].container.scale = 1;
                         }
 
                         this._clearButton.scaleX = 1;
