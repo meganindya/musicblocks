@@ -194,6 +194,7 @@ function Activity() {
         "activity/blocks",
         "activity/block",
         "activity/turtledefs",
+        "activity/notation",
         "activity/logo",
         "activity/languagebox",
         "activity/basicblocks",
@@ -832,8 +833,8 @@ function Activity() {
         logo.notationOutput = "";
         for (let turtle = 0; turtle < turtles.turtleList.length; turtle++) {
             logo.turtleHeaps[turtle] = [];
-            logo.notationStaging[turtle] = [];
-            logo.notationDrumStaging[turtle] = [];
+            logo.notation.notationStaging[turtle] = [];
+            logo.notation.notationDrumStaging[turtle] = [];
             if (noErase === undefined || !noErase) {
                 turtles.turtleList[turtle].doClear(true, true, true);
             }
@@ -872,7 +873,7 @@ function Activity() {
 
         let currentDelay = logo.turtleDelay;
         let playingWidget = false;
-        logo.setTurtleDelay(0);
+        logo.turtleDelay = 0;
         if (_THIS_IS_MUSIC_BLOCKS_) {
             logo.synth.resume();
 
@@ -932,7 +933,7 @@ function Activity() {
         blocks.activeBlock = null;
         hideDOMLabel();
 
-        logo.setTurtleDelay(DEFAULTDELAY);
+        logo.turtleDelay = DEFAULTDELAY;
         if (_THIS_IS_MUSIC_BLOCKS_) {
             logo.synth.resume();
         }
@@ -962,14 +963,14 @@ function Activity() {
         if (turtleCount === 0 || logo.turtleDelay !== TURTLESTEP) {
             // Either we haven't set up a queue or we are
             // switching modes.
-            logo.setTurtleDelay(TURTLESTEP);
+            logo.turtleDelay = TURTLESTEP;
             // Queue and take first step.
             if (!turtles.running()) {
                 logo.runLogoCommands();
             }
             logo.step();
         } else {
-            logo.setTurtleDelay(TURTLESTEP);
+            logo.turtleDelay = TURTLESTEP;
             logo.step();
         }
     };
@@ -1204,12 +1205,6 @@ function Activity() {
         myRadarChart = new Chart(ctx).Radar(data, options);
     };
 
-    // DEPRECATED
-    function doOptimize(state) {
-        blocks.activeBlock = null;
-        console.debug("Setting optimize to " + state);
-        logo.setOptimize(state);
-    }
     /*
      * Increases block size
      */
@@ -1307,7 +1302,6 @@ function Activity() {
 
     // function doPausePlayback() {
     //     blocks.activeBlock = null;
-    //     logo.restartPlayback = false;
     //     logo.playback(-1);
     //     // playbackBox.playButton.visible = true;
     //     // playbackBox.pauseButton.visible = false;
@@ -1328,7 +1322,6 @@ function Activity() {
     // function doRestartPlayback() {
     //     blocks.activeBlock = null;
     //     logo.doStopTurtle();
-    //     logo.restartPlayback = true;
 
     //     /*
     //     setTimeout(function () {
@@ -1344,13 +1337,12 @@ function Activity() {
     // // Deprecated
     // function doCompile() {
     //     blocks.activeBlock = null;
-    //     logo.restartPlayback = true;
     //     document.body.style.cursor = 'wait';
     //     console.debug('Compiling music for playback');
 
     //     // Suppress music and turtle output when generating
     //     // compiled output.
-    //     logo.setTurtleDelay(0); // Compile at full speed.
+    //     logo.turtleDelay = 0;    // Compile at full speed.
     //     logo.playbackQueue = {};
     //     logo.playbackTime = 0;
     //     logo.compiling = true;
@@ -3255,8 +3247,8 @@ function Activity() {
                         turtle++
                     ) {
                         logo.turtleHeaps[turtle] = [];
-                        logo.notationStaging[turtle] = [];
-                        logo.notationDrumStaging[turtle] = [];
+                        logo.notation.notationStaging[turtle] = [];
+                        logo.notation.notationDrumStaging[turtle] = [];
                         turtles.turtleList[turtle].doClear(true, true, false);
                     }
                     const imgUrl =
@@ -3373,11 +3365,6 @@ function Activity() {
     };
 
     errorMsg = function(msg, blk, text, timeout) {
-        /*
-        if (logo.optimize) {
-            return;
-        }
-        */
         if (errorMsgTimeoutID != null) {
             clearTimeout(errorMsgTimeoutID);
         }
@@ -4884,23 +4871,23 @@ function Activity() {
         // initPalettes(palettes);
 
         logo = new Logo();
-        logo.setCanvas(canvas)
-            .setBlocks(blocks)
-            .setTurtles(turtles)
-            .setStage(turtleContainer)
-            .setRefreshCanvas(refreshCanvas)
-            .setTextMsg(textMsg)
-            .setErrorMsg(errorMsg)
-            .setHideMsgs(hideMsgs)
-            .setOnStopTurtle(that.onStopTurtle)
-            .setOnRunTurtle(that.onRunTurtle)
-            .setGetStageX(getStageX)
-            .setGetStageY(getStageY)
-            .setGetStageMouseDown(getStageMouseDown)
-            .setGetCurrentKeyCode(that.getCurrentKeyCode)
-            .setClearCurrentKeyCode(that.clearCurrentKeyCode)
-            // .setMeSpeak(meSpeak)
-            .setSetPlaybackStatus(setPlaybackStatus);
+        logo.canvas = canvas;
+        logo.blocks = blocks;
+        logo.turtles = turtles;
+        logo.stage = turtleContainer;
+        logo.refreshCanvas = refreshCanvas;
+        logo.textMsg = textMsg;
+        logo.errorMsg = errorMsg;
+        logo.hideMsgs = hideMsgs;
+        logo.onStopTurtle = that.onStopTurtle;
+        logo.onRunTurtle = that.onRunTurtle;
+        logo.getStageX = getStageX;
+        logo.getStageY = getStageY;
+        logo.getStageMouseDown = getStageMouseDown;
+        logo.getCurrentKeyCode = that.getCurrentKeyCode;
+        logo.clearCurrentKeyCode = that.clearCurrentKeyCode;
+        // logo.meSpeak = meSpeak;
+        logo.setPlaybackStatus = setPlaybackStatus;
 
         blocks.setLogo(logo);
 
@@ -5328,7 +5315,7 @@ function Activity() {
         }
 
         window.saveLocally = saveLocally;
-        logo.setSaveLocally(saveLocally);
+        logo.saveLocally = saveLocally;
 
         initPalettes(palettes);
 
