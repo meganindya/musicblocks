@@ -358,7 +358,7 @@ function setupExtrasBlocks() {
         }
 
         arg(logo, turtle, blk, receivedArg) {
-            logo.showBlocks(); // Force blocks to be visible.
+            logo.blocks.showBlocks();   // Force blocks to be visible.
             let blockArgs = [null];
             if (logo.blocks.blockList[blk].argClampSlots.length > 0) {
                 for (
@@ -388,7 +388,7 @@ function setupExtrasBlocks() {
             );
 
             // We need to wait for the new block to load before continuing.
-            logo._doWait(turtle, 1);
+            logo.doWait(turtle, 1);
 
             // We special case note blocks.
             //.TRANS: a musical note consisting of pitch and duration
@@ -635,7 +635,7 @@ function setupExtrasBlocks() {
         }
 
         flow(args, logo) {
-            logo.showBlocks();
+            logo.blocks.showBlocks();
             logo.turtleDelay = DEFAULTDELAY;
         }
     }
@@ -652,7 +652,8 @@ function setupExtrasBlocks() {
         }
 
         flow(args, logo) {
-            logo.hideBlocks();
+            blocks.hideBlocks();
+            logo.showBlocksAfterRun = false;
             logo.turtleDelay = 0;
         }
     }
@@ -788,7 +789,7 @@ function setupExtrasBlocks() {
                 let noteBeatValue = bpmFactor / (1 / args[0]);
                 logo.previousTurtleTime[turtle] = logo.turtleTime[turtle];
                 logo.turtleTime[turtle] += noteBeatValue;
-                logo._doWait(turtle, args[0]);
+                logo.doWait(turtle, args[0]);
             }
         }
     }
@@ -856,14 +857,6 @@ function setupExtrasBlocks() {
                             } else {
                                 logo.textMsg(args[0].toString());
                             }
-                        }
-
-                        if (logo.justCounting[turtle].length === 0) {
-                            logo._playbackPush(turtle, [
-                                logo.previousTurtleTime[turtle],
-                                "print",
-                                args[0]
-                            ]);
                         }
                     }
                 }

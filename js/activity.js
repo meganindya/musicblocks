@@ -205,7 +205,6 @@ function Activity() {
         "utils/musicutils",
         "utils/synthutils",
         "utils/mathutils",
-        // 'activity/playbackbox',
         "activity/pastebox",
         "prefixfree.min"
     ];
@@ -448,7 +447,7 @@ function Activity() {
         let toppos;
         blocks.activeBlock = null;
         hideDOMLabel();
-        logo.showBlocks();
+        blocks.showBlocks();
         blocksContainer.x = 0;
         blocksContainer.y = 0;
 
@@ -902,7 +901,8 @@ function Activity() {
         if (!turtles.running()) {
             console.debug("RUNNING");
             if (!turtles.isShrunk()) {
-                logo.hideBlocks(true);
+                blocks.hideBlocks();
+                logo.showBlocksAfterRun = true;
             }
 
             logo.runLogoCommands(null, env);
@@ -990,7 +990,7 @@ function Activity() {
             onblur = false;
         }
 
-        if (onblur && _THIS_IS_MUSIC_BLOCKS_ && logo.recordingStatus()) {
+        if (onblur && _THIS_IS_MUSIC_BLOCKS_) {
             console.debug("Ignoring hard stop due to blur");
             return;
         }
@@ -998,7 +998,7 @@ function Activity() {
         logo.doStopTurtle();
 
         if (_THIS_IS_MUSIC_BLOCKS_) {
-            logo._setMasterVolume(0);
+            logo.setMasterVolume(0);
 
             let widgetTitle = document.getElementsByClassName("wftTitle");
             for (let i = 0; i < widgetTitle.length; i++) {
@@ -1056,7 +1056,7 @@ function Activity() {
     };
 
     // function doMuteButton() {
-    //     logo._setMasterVolume(0);
+    //     logo.setMasterVolume(0);
     // };
 
     // function _hideBoxes() {
@@ -1140,7 +1140,7 @@ function Activity() {
         this.closeButton.on("click", function(event) {
             button.closeButton.visible = false;
             stage.removeChild(chartBitmap);
-            logo.showBlocks();
+            blocks.showBlocks();
             update = true;
             ctx.clearRect(0, 0, 600, 600);
         });
@@ -1193,7 +1193,8 @@ function Activity() {
                 chartBitmap.y = 200;
                 chartBitmap.scaleX = chartBitmap.scaleY = chartBitmap.scale =
                     600 / chartBitmap.image.width;
-                logo.hideBlocks();
+                blocks.hideBlocks();
+                logo.showBlocksAfterRun = false;
                 update = true;
                 document.body.style.cursor = "default";
                 loading = false;
@@ -1290,65 +1291,6 @@ function Activity() {
             }
         }
     };
-
-    // function getPlaybackQueueStatus() {
-    //     return Object.keys(logo.playbackQueue).length > 0;
-    // };
-
-    function setPlaybackStatus() {
-        // if (playbackBox != null) {
-        //     playbackBox.setPlaybackStatus();
-        // }
-    }
-
-    // function doPausePlayback() {
-    //     blocks.activeBlock = null;
-    //     logo.playback(-1);
-    //     // playbackBox.playButton.visible = true;
-    //     // playbackBox.pauseButton.visible = false;
-    // };
-
-    // function doPlayback() {
-    //     blocks.activeBlock = null;
-    //     progressBar.style.visibility = 'visible';
-    //     progressBar.style.left = (playbackBox.getPos()[0] + 10) * turtleBlocksScale + 'px';
-    //     progressBar.style.top = (playbackBox.getPos()[1] + 10) * turtleBlocksScale + 'px';
-    //     logo.playback(-1);
-    //     // playbackBox.playButton.visible = false;
-    //     // playbackBox.pauseButton.visible = true;
-    //     // playbackBox.norewindButton.visible = false;
-    //     // playbackBox.rewindButton.visible = true;
-    // };
-
-    // function doRestartPlayback() {
-    //     blocks.activeBlock = null;
-    //     logo.doStopTurtle();
-
-    //     /*
-    //     setTimeout(function () {
-    //         // logo.playback(-1);
-    //         playbackBox.playButton.visible = true;
-    //         playbackBox.pauseButton.visible = false;
-    //         playbackBox.norewindButton.visible = true;
-    //         playbackBox.rewindButton.visible = false;
-    //     }, 500);
-    //     */
-    // };
-
-    // // Deprecated
-    // function doCompile() {
-    //     blocks.activeBlock = null;
-    //     document.body.style.cursor = 'wait';
-    //     console.debug('Compiling music for playback');
-
-    //     // Suppress music and turtle output when generating
-    //     // compiled output.
-    //     logo.turtleDelay = 0;    // Compile at full speed.
-    //     logo.playbackQueue = {};
-    //     logo.playbackTime = 0;
-    //     logo.compiling = true;
-    //     logo.runLogoCommands();
-    // };
 
     /*
      * Hides all grids (Cartesian/polar/treble/et al.)
@@ -2177,9 +2119,6 @@ function Activity() {
                     textMsg("Alt-E " + _("Erase"));
                     _allClear(false);
                     break;
-                case 80: // 'P'
-                    // logo.playback(-1);
-                    break;
                 case 82: // 'R'
                     textMsg("Alt-R " + _("Play"));
                     that._doFastButton();
@@ -2810,11 +2749,6 @@ function Activity() {
         }
     };
 
-    // function _doPlaybackBox() {
-    //     // _hideBoxes();
-    //     // playbackBox.init(turtleBlocksScale, playbackButton.x - 27, playbackButton.y, _makeButton, logo);
-    // };
-
     /*
      * @param {boolean} addStartBlock {if true adds a new start block to new project instance}
      * @param {boolean} doNotSave     {if true discards any changes to project}
@@ -2873,9 +2807,7 @@ function Activity() {
 
         if (addStartBlock) {
             console.debug("ADDING START BLOCK");
-            logo.playbackQueue = {};
             blocks.loadNewBlocks(DATAOBJS);
-            setPlaybackStatus();
             _allClear(false);
         } else if (!doNotSave) {
             // Overwrite session data too.
@@ -2910,7 +2842,8 @@ function Activity() {
         hideDOMLabel();
 
         if (blocks.visible) {
-            logo.hideBlocks();
+            blocks.hideBlocks();
+            logo.showBlocksAfterRun = false;
             palettes.hide();
             hideBlocksContainer[1].visible = true;
             hideBlocksContainer[0].visible = false;
@@ -2921,7 +2854,7 @@ function Activity() {
             }
             hideBlocksContainer[1].visible = false;
             hideBlocksContainer[0].visible = true;
-            logo.showBlocks();
+            blocks.showBlocks();
             palettes.show();
             palettes.bringToTop();
         }
@@ -2953,7 +2886,6 @@ function Activity() {
 
         if (stopTurtleContainer.visible) {
             _hideStopButton();
-            setPlaybackStatus();
         }
         */
     };
@@ -3219,9 +3151,7 @@ function Activity() {
         // palettes.updatePalettes();
         justLoadStart = function() {
             console.debug("Loading start");
-            logo.playbackQueue = {};
             blocks.loadNewBlocks(DATAOBJS);
-            setPlaybackStatus();
         };
 
         sessionData = null;
@@ -3267,8 +3197,6 @@ function Activity() {
 
                     // Set flag to 1 to enable keyboard after MB finishes loading
                     keyboardEnableFlag = 1;
-
-                    // playbackOnLoad();
                 }, 1000);
             }
 
@@ -3302,9 +3230,7 @@ function Activity() {
                         blocks.palettes.dict[name].hideMenu(true);
                     }
 
-                    logo.playbackQueue = {};
                     blocks.loadNewBlocks(JSON.parse(sessionData));
-                    setPlaybackStatus();
                 }
             } catch (e) {
                 console.debug(e);
@@ -3670,9 +3596,6 @@ function Activity() {
     /*
      * We don't save blocks in the trash, so we need to
      * consolidate the block list and remap the connections.
-     *
-     * Next, save the playback queue, but don't save the
-     * playback queue if we are saving to Lilypond.
      */
     function prepareExport() {
         let blockMap = [];
@@ -3832,28 +3755,6 @@ function Activity() {
                     myBlock.container.y,
                     connections
                 ]);
-            }
-        }
-
-        // remap block connections
-
-        if (logo.runningLilypond) {
-            logo.playbackQueue = {};
-        }
-
-        let i = data.length;
-        if (i > 0) {
-            for (let turtle = 0; turtle < turtles.turtleList.length; turtle++) {
-                if (turtle in logo.playbackQueue) {
-                    for (
-                        let j = 0;
-                        j < logo.playbackQueue[turtle].length;
-                        j++
-                    ) {
-                        data.push([i, turtle, logo.playbackQueue[turtle][j]]);
-                        i += 1;
-                    }
-                }
             }
         }
 
@@ -4854,7 +4755,6 @@ function Activity() {
             .setUpdateStage(stage.update)
             .setGetStageScale(getStageScale)
             .setTurtles(turtles)
-            .setSetPlaybackStatus(setPlaybackStatus)
             .setErrorMsg(errorMsg)
             .setHomeContainers(setHomeContainers, boundary);
 
@@ -4888,7 +4788,6 @@ function Activity() {
         logo.getCurrentKeyCode = that.getCurrentKeyCode;
         logo.clearCurrentKeyCode = that.clearCurrentKeyCode;
         // logo.meSpeak = meSpeak;
-        logo.setPlaybackStatus = setPlaybackStatus;
 
         blocks.setLogo(logo);
 
@@ -4906,22 +4805,6 @@ function Activity() {
         if (firstTimeUser) {
             _showHelp();
         }
-
-        playbackOnLoad = function() {
-            /*
-            if (_THIS_IS_TURTLE_BLOCKS_) {
-                // Play playback queue if there is one.
-                for (turtle in logo.playbackQueue) {
-                    if (logo.playbackQueue[turtle].length > 0) {
-                        setTimeout(function () {
-                            logo.playback(-1);
-                        }, 3000);
-                        break;
-                    }
-                }
-            }
-            */
-        };
 
         function PlanetInterface(storage) {
             this.planet = null;
@@ -5019,7 +4902,6 @@ function Activity() {
                 }
 
                 let __afterLoad = function() {
-                    // playbackOnLoad();
                     document.removeEventListener(
                         "finishedLoading",
                         __afterLoad
@@ -5034,9 +4916,7 @@ function Activity() {
 
                 try {
                     let obj = JSON.parse(data);
-                    logo.playbackQueue = {};
                     blocks.loadNewBlocks(obj);
-                    setPlaybackStatus();
                 } catch (e) {
                     console.debug(
                         "loadRawProject: could not parse project data"
@@ -5416,9 +5296,7 @@ function Activity() {
                                 if (!merging) {
                                     // Wait for the old blocks to be removed.
                                     let __listener = function(event) {
-                                        logo.playbackQueue = {};
                                         blocks.loadNewBlocks(obj);
-                                        setPlaybackStatus();
                                         stage.removeAllEventListeners(
                                             "trashsignal"
                                         );
@@ -5444,9 +5322,7 @@ function Activity() {
                                     }
                                 } else {
                                     merging = false;
-                                    logo.playbackQueue = {};
                                     blocks.loadNewBlocks(obj);
-                                    setPlaybackStatus();
                                 }
 
                                 loading = false;
@@ -5509,7 +5385,6 @@ function Activity() {
                             stage.removeAllEventListeners("trashsignal");
 
                             let __afterLoad = function() {
-                                // playbackOnLoad();
                                 document.removeEventListener(
                                     "finishedLoading",
                                     __afterLoad
@@ -5518,9 +5393,7 @@ function Activity() {
 
                             // Wait for the old blocks to be removed.
                             let __listener = function(event) {
-                                logo.playbackQueue = {};
                                 blocks.loadNewBlocks(obj);
-                                setPlaybackStatus();
                                 stage.removeAllEventListeners("trashsignal");
 
                                 if (document.addEventListener) {

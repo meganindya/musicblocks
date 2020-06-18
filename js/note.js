@@ -524,12 +524,6 @@ class NoteController {
                     "electronic synth",
                     last(logo.synthVolume[turtle][synth])
                 );
-                logo._playbackPush(turtle, [
-                    logo.previousTurtleTime[turtle],
-                    "setsynthvolume",
-                    synth,
-                    last(logo.synthVolume[turtle][synth])
-                ]);
             }
         } else if (logo.crescendoDelta[turtle].length > 0) {
             if (
@@ -550,12 +544,6 @@ class NoteController {
                 console.debug(
                     synth + "= " + logo.synthVolume[turtle][synth][len - 1]
                 );
-                logo._playbackPush(turtle, [
-                    logo.previousTurtleTime[turtle],
-                    "setsynthvolume",
-                    synth,
-                    last(logo.synthVolume[turtle][synth])
-                ]);
                 if (!logo.suppressOutput[turtle]) {
                     logo.setSynthVolume(
                         turtle,
@@ -816,7 +804,7 @@ class NoteController {
                         logo.inNoteBlock[turtle].pop();
 
                         if (!logo.suppressOutput[turtle]) {
-                            logo._doWait(
+                            logo.doWait(
                                 turtle,
                                 Math.max(
                                     bpmFactor / logo.tieCarryOver[turtle] +
@@ -957,7 +945,7 @@ class NoteController {
                     logo.turtleTime[turtle] +=
                         bpmFactor / duration + logo.noteDelay / 1000;
                     if (!logo.suppressOutput[turtle]) {
-                        logo._doWait(
+                        logo.doWait(
                             turtle,
                             Math.max(
                                 bpmFactor / duration +
@@ -1486,20 +1474,6 @@ class NoteController {
                                             false
                                         );
                                     }
-
-                                    if (
-                                        logo.justCounting[turtle].length === 0
-                                    ) {
-                                        logo._playbackPush(turtle, [
-                                            logo.previousTurtleTime[turtle],
-                                            "notes",
-                                            notes,
-                                            beatValue,
-                                            last(logo.oscList[turtle][thisBlk]),
-                                            __getParamsEffects(paramsEffects),
-                                            null
-                                        ]);
-                                    }
                                 } else if (
                                     logo.drumStyle[turtle].length > 0 &&
                                     // Don't play drum if settimbre encountered
@@ -1516,20 +1490,6 @@ class NoteController {
                                             false
                                         );
                                     }
-
-                                    if (
-                                        logo.justCounting[turtle].length === 0
-                                    ) {
-                                        logo._playbackPush(turtle, [
-                                            logo.previousTurtleTime[turtle],
-                                            "notes",
-                                            notes,
-                                            beatValue,
-                                            logo.drumStyle[turtle],
-                                            null,
-                                            null
-                                        ]);
-                                    }
                                 } else if (
                                     logo.turtles.turtleList[turtle].drum
                                 ) {
@@ -1543,20 +1503,6 @@ class NoteController {
                                             null,
                                             false
                                         );
-                                    }
-
-                                    if (
-                                        logo.justCounting[turtle].length === 0
-                                    ) {
-                                        logo._playbackPush(turtle, [
-                                            logo.previousTurtleTime[turtle],
-                                            "notes",
-                                            notes,
-                                            beatValue,
-                                            "drum",
-                                            null,
-                                            null
-                                        ]);
                                     }
                                 } else {
                                     for (var d = 0; d < notes.length; d++) {
@@ -1581,25 +1527,6 @@ class NoteController {
                                                     null,
                                                     false
                                                 );
-                                            }
-
-                                            if (
-                                                logo.justCounting[turtle]
-                                                    .length === 0
-                                            ) {
-                                                logo._playbackPush(turtle, [
-                                                    logo.previousTurtleTime[
-                                                        turtle
-                                                    ],
-                                                    "notes",
-                                                    notes[d],
-                                                    beatValue,
-                                                    logo.pitchDrumTable[turtle][
-                                                        notes[d]
-                                                    ],
-                                                    null,
-                                                    null
-                                                ]);
                                             }
                                         } else if (
                                             turtle in logo.instrumentNames &&
@@ -1685,29 +1612,6 @@ class NoteController {
                                                     );
                                                 }
                                             }
-
-                                            if (
-                                                logo.justCounting[turtle]
-                                                    .length === 0
-                                            ) {
-                                                logo._playbackPush(turtle, [
-                                                    logo.previousTurtleTime[
-                                                        turtle
-                                                    ],
-                                                    "notes",
-                                                    notes[d],
-                                                    beatValue,
-                                                    last(
-                                                        logo.instrumentNames[
-                                                            turtle
-                                                        ]
-                                                    ),
-                                                    __getParamsEffects(
-                                                        paramsEffects
-                                                    ),
-                                                    filters
-                                                ]);
-                                            }
                                         } else if (
                                             turtle in logo.voices &&
                                             last(logo.voices[turtle])
@@ -1726,25 +1630,6 @@ class NoteController {
                                                     false
                                                 );
                                             }
-
-                                            if (
-                                                logo.justCounting[turtle]
-                                                    .length === 0
-                                            ) {
-                                                logo._playbackPush(turtle, [
-                                                    logo.previousTurtleTime[
-                                                        turtle
-                                                    ],
-                                                    "notes",
-                                                    notes[d],
-                                                    beatValue,
-                                                    last(logo.voices[turtle]),
-                                                    __getParamsEffects(
-                                                        paramsEffects
-                                                    ),
-                                                    null
-                                                ]);
-                                            }
                                         } else {
                                             if (!logo.suppressOutput[turtle]) {
                                                 logo.synth.trigger(
@@ -1756,25 +1641,6 @@ class NoteController {
                                                     null,
                                                     false
                                                 );
-                                            }
-
-                                            if (
-                                                logo.justCounting[turtle]
-                                                    .length === 0
-                                            ) {
-                                                logo._playbackPush(turtle, [
-                                                    logo.previousTurtleTime[
-                                                        turtle
-                                                    ],
-                                                    "notes",
-                                                    notes[d],
-                                                    beatValue,
-                                                    "electronic synth",
-                                                    __getParamsEffects(
-                                                        paramsEffects
-                                                    ),
-                                                    null
-                                                ]);
                                             }
                                         }
                                     }
@@ -1877,21 +1743,6 @@ class NoteController {
                                                 false
                                             );
                                         }
-
-                                        if (
-                                            logo.justCounting[turtle].length ===
-                                            0
-                                        ) {
-                                            logo._playbackPush(turtle, [
-                                                logo.previousTurtleTime[turtle],
-                                                "notes",
-                                                ["C2"],
-                                                newBeatValue,
-                                                last(logo.drumStyle[turtle]),
-                                                null,
-                                                null
-                                            ]);
-                                        }
                                     } else {
                                         if (!logo.suppressOutput[turtle]) {
                                             logo.synth.trigger(
@@ -1903,21 +1754,6 @@ class NoteController {
                                                 null,
                                                 false
                                             );
-                                        }
-
-                                        if (
-                                            logo.justCounting[turtle].length ===
-                                            0
-                                        ) {
-                                            logo._playbackPush(turtle, [
-                                                logo.previousTurtleTime[turtle],
-                                                "notes",
-                                                ["C2"],
-                                                newBeatValue,
-                                                drums[i],
-                                                null,
-                                                null
-                                            ]);
                                         }
                                     }
                                 }
@@ -1936,14 +1772,14 @@ class NoteController {
                 // the corresponding graphics.
                 if (logo.tie[turtle] && noteBeatValue === 0) {
                     if (tieDelay > 0) {
-                        logo._dispatchTurtleSignals(
+                        logo.dispatchTurtleSignals(
                             turtle,
                             bpmFactor / logo.tieCarryOver[turtle],
                             blk,
                             bpmFactor / tieDelay
                         );
                     } else {
-                        logo._dispatchTurtleSignals(
+                        logo.dispatchTurtleSignals(
                             turtle,
                             bpmFactor / logo.tieCarryOver[turtle],
                             blk,
@@ -1952,14 +1788,14 @@ class NoteController {
                     }
                 } else {
                     if (tieDelay > 0) {
-                        logo._dispatchTurtleSignals(
+                        logo.dispatchTurtleSignals(
                             turtle,
                             beatValue - bpmFactor / tieDelay,
                             blk,
                             bpmFactor / tieDelay
                         );
                     } else {
-                        logo._dispatchTurtleSignals(turtle, beatValue, blk, 0);
+                        logo.dispatchTurtleSignals(turtle, beatValue, blk, 0);
                     }
                 }
 
