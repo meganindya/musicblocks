@@ -120,8 +120,6 @@ class Turtle {
      * Causes turtle to blink (toggle turtle's visibility) every 100 ms.
      */
     async blink(duration, volume) {
-        // this._sizeInUse = this.bitmap.scaleX;
-
         // suppress blinking when using cursorout and cursorover sensors to prevent multiple triggers.
         if ("CursorOver" + this.id in this.listeners || "CursorOut" + this.id in this.listeners)
             return;
@@ -652,7 +650,7 @@ Turtle.TurtleView = class {
             );
             text.textAlign = "left";
             text.textBaseline = "alphabetic";
-            this.turtles.getStage().addChild(text);
+            this.turtles.stage.addChild(text);
             this._media.push(text);
             text.x = this.container.x;
             text.y = this.container.y + i * size;
@@ -687,7 +685,7 @@ Turtle.TurtleView = class {
      * @param {Function} refreshCanvas - callback to refresh canvas
      * @returns {void}
      */
-    _makeTurtleBitmap(data, refreshCanvas) {
+    makeTurtleBitmap(data, refreshCanvas) {
         // Works with Chrome, Safari, Firefox (untested on IE)
         let img = new Image();
 
