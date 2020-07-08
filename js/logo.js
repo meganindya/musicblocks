@@ -713,6 +713,12 @@ class Logo {
                 for (let instrumentName in instruments[turtle]) {
                     this.synth.stopSound(turtle, instrumentName);
                 }
+                let comp = this.turtles.turtleList[turtle].companionTurtle;
+                if (comp) {
+                    this.turtles.turtleList[comp].running = false;
+                    let interval = logo.turtles.turtleList[comp].interval;
+                    if (interval) clearInterval(interval);
+                }
             }
 
             this.synth.stop();
@@ -1875,6 +1881,12 @@ class Logo {
                 logo.turtles.turtleList[turtle].running = false;
             }
 
+            let comp = logo.turtles.turtleList[turtle].companionTurtle;
+            if (comp){
+                logo.turtles.turtleList[comp].running = false ;
+                let interval = logo.turtles.turtleList[comp].interval;
+                if (interval) clearInterval(interval);
+            }
             // Because flow can come from calc blocks, we are not
             // ensured that the turtle is really finished running
             // yet. Hence the timeout.
@@ -3368,7 +3380,7 @@ class Logo {
                 this.synth.inTemperament
             );
 
-            if (this.synth.inTemperament == "custom") {
+            if (isCustom(this.synth.inTemperament)) {
                 let value = getStepSizeUp(
                     this.keySignature[turtle],
                     noteObj[0],
@@ -3415,7 +3427,7 @@ class Logo {
                 this.synth.inTemperament
             );
 
-            if (this.synth.inTemperament == "custom") {
+            if (isCustom(this.synth.inTemperament)) {
                 let value = getStepSizeDown(
                     this.keySignature[turtle],
                     noteObj[0],
