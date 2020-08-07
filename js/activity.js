@@ -1169,10 +1169,9 @@ function Activity() {
         keyNameWheel.sliceSelectedPathCustom = keyNameWheel.slicePathCustom;
         keyNameWheel.sliceInitPathCustom = keyNameWheel.slicePathCustom;
         keyNameWheel.titleRotateAngle = 0;
-        keyNameWheel.clickModeRotate = false;
         keyNameWheel.colors = platformColor.pitchWheelcolors;
         keyNameWheel.animatetime = 0;
-        
+
         keyNameWheel.createWheel(keys);
 
         keyNameWheel2.colors = platformColor.pitchWheelcolors;
@@ -1196,7 +1195,7 @@ function Activity() {
         }
 
         keyNameWheel2.navAngle = -7.45;
-        keyNameWheel2.clickModeRotate = false;
+        keyNameWheel2.animatetime = 0;
         keyNameWheel2.createWheel(keys2);
 
         var modenameWheel = new wheelnav("modenameWheel", keyNameWheel.raphael);
@@ -1252,12 +1251,12 @@ function Activity() {
         
         exitWheel.navItems[0].navigateFunction = __exitMenu;
 
-        let __playNote = () => {
+        let __playNote = (note) => {
             let obj = getNote(
-                KeySignatureEnv[0],
+                note,
                 4,
                 null,
-                KeySignatureEnv[0] + " " + KeySignatureEnv[1],
+                note + " " + KeySignatureEnv[1],
                 false,
                 null,
                 null
@@ -1299,8 +1298,15 @@ function Activity() {
                     }
                 }
                 __selectionChangedKey();
-                if ((i >= 0 && i < 5) || (i > 9 && i < 12) )
-                    __playNote();
+                if ((i >= 0 && i < 5) || (i > 9 && i < 12) ) {
+                    __playNote(KeySignatureEnv[0]);
+                } else {
+                    let selection = keyNameWheel.navItems[
+                        keyNameWheel.selectedNavItemIndex
+                    ].title;
+                    selection = selection.split("/");
+                    __playNote(selection[0]);
+                }
             };
         };
 
@@ -1308,6 +1314,7 @@ function Activity() {
             let selection = keyNameWheel.navItems[
                 keyNameWheel.selectedNavItemIndex
             ].title;
+            keyNameWheel2.navigateWheel(2 * keyNameWheel.selectedNavItemIndex);
             if (selection === "") {
                 keyNameWheel.navigateWheel(
                     (keyNameWheel.selectedNavItemIndex + 1) %
@@ -1347,7 +1354,6 @@ function Activity() {
                 keyNameWheel2.selectedNavItemIndex
             ].title;
             KeySignatureEnv[0] = selection;
-            __playNote();
         };
 
         for (let i = 0; i < keys2.length; i++) {
@@ -1370,8 +1376,8 @@ function Activity() {
         let i = keys.indexOf(KeySignatureEnv[0]);
         if (i == -1) {
             i = keys2.indexOf(KeySignatureEnv[0]);
-            console.log("index is", i);
             if (i != -1) {
+                keyNameWheel.navigateWheel(Math.floor(i / 2));
                 keyNameWheel2.navigateWheel(i);
                 for (let j = 0; j < keys2.length; j++) {
                     keyNameWheel2.navItems[j].navItem.hide();
@@ -2060,19 +2066,19 @@ function Activity() {
       Prepare a list of blocks for the search bar autocompletion.
      */
     prepSearchWidget = function() {
-        searchWidget.style.visibility = "hidden";
+        //searchWidget.style.visibility = "hidden";
         searchBlockPosition = [100, 100];
 
         searchSuggestions = [];
         deprecatedBlockNames = [];
 
         for (i in blocks.protoBlockDict) {
-            blockLabel = blocks.protoBlockDict[i].staticLabels[0];
+            blockLabel = blocks.protoBlockDict[i].staticLabels.join(' ');
             if (blockLabel) {
                 if (blocks.protoBlockDict[i].deprecated) {
                     deprecatedBlockNames.push(blockLabel);
                 } else {
-                    searchSuggestions.push(blockLabel);
+                    searchSuggestions.push({label : blockLabel ,value : blocks.protoBlockDict[i].name ,specialDict :blocks.protoBlockDict[i] }); 
                 }
             }
         }
@@ -2091,6 +2097,7 @@ function Activity() {
         }
 
         searchWidget.style.visibility = "hidden";
+        searchWidget.idInput_custom = "" ;
     };
 
     /*
@@ -2116,7 +2123,7 @@ function Activity() {
                 palettes.getSearchPos()[1] * turtleBlocksScale + "px";
 
             searchBlockPosition = [100, 100];
-
+            prepSearchWidget();
             // Give the browser time to update before selecting
             // focus.
             setTimeout(function() {
@@ -2135,49 +2142,55 @@ function Activity() {
         $j("#search").autocomplete({
             source: searchSuggestions,
             select: function(event, ui) {
+                event.preventDefault();
                 searchWidget.value = ui.item.label;
+                searchWidget.idInput_custom = ui.item.value;
+                searchWidget.protoblk = ui.item.specialDict;
                 doSearch();
-            }
+            },
+            focus: function(event, ui) {
+                event.preventDefault();
+                searchWidget.value = ui.item.label;
+            },
         });
 
         $j("#search")
             .autocomplete("widget")
             .addClass("scrollSearch");
 
-        let searchInput = searchWidget.value;
-        let obj = palettes.getProtoNameAndPalette(searchInput);
-        let protoblk = obj[0];
-        let paletteName = obj[1];
-        let protoName = obj[2];
+        let searchInput = searchWidget.idInput_custom;
+        if (!searchInput || searchInput.length <= 0) return;
+
+        let protoblk = searchWidget.protoblk;
+        let paletteName = protoblk.palette.name;
+        let protoName = protoblk.name;
 
         let searchResult = blocks.protoBlockDict.hasOwnProperty(protoName);
 
-        if (searchInput.length > 0) {
-            if (searchResult) {
-                palettes.dict[paletteName].makeBlockFromSearch(
-                    protoblk,
-                    protoName,
-                    function(newBlock) {
-                        blocks.moveBlock(
-                            newBlock,
-                            100 + searchBlockPosition[0] - blocksContainer.x,
-                            searchBlockPosition[1] - blocksContainer.y
-                        );
-                    }
-                );
+        if (searchResult) {
+            palettes.dict[paletteName].makeBlockFromSearch(
+                protoblk,
+                protoName,
+                function(newBlock) {
+                    blocks.moveBlock(
+                        newBlock,
+                        100 + searchBlockPosition[0] - blocksContainer.x,
+                        searchBlockPosition[1] - blocksContainer.y
+                    );
+                }
+            );
 
-                // Move the position of the next newly created block.
-                searchBlockPosition[0] += STANDARDBLOCKHEIGHT;
-                searchBlockPosition[1] += STANDARDBLOCKHEIGHT;
-            } else if (deprecatedBlockNames.indexOf(searchInput) > -1) {
-                blocks.errorMsg(_("This block is deprecated."));
-            } else {
-                blocks.errorMsg(_("Block cannot be found."));
-            }
-
-            searchWidget.value = "";
-            update = true;
+            // Move the position of the next newly created block.
+            searchBlockPosition[0] += STANDARDBLOCKHEIGHT;
+            searchBlockPosition[1] += STANDARDBLOCKHEIGHT;
+        } else if (deprecatedBlockNames.indexOf(searchInput) > -1) {
+            blocks.errorMsg(_("This block is deprecated."));
+        } else {
+            blocks.errorMsg(_("Block cannot be found."));
         }
+
+        searchWidget.value = "";
+        update = true;
     };
 
     /*
@@ -4710,6 +4723,7 @@ function Activity() {
                 document.getElementById("toolbars").style.display = "block";
                 document.getElementById("palette").style.display = "block";
 
+                prepSearchWidget();
                 widgetWindows.showWindows();
 
                 document
