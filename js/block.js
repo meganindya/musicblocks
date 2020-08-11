@@ -4994,30 +4994,20 @@ function Block(protoblock, blocks, overrideName) {
                 that._octavesWheel.navigateWheel(8 - octave);
                 that.blocks.setPitchOctave(that.connections[0], octave);
             }
-
-
-            if (Number(note.substr(0,1)) == note.substr(0,1)) {
-                let obj1 = splitScaleDegree(note);
-                note = SOLFEGENAMES[obj1[0] - 1];
-                if(obj1[1] != NATURAL) {
-                    note += obj1[1];
-                }
-            }
             
             let keySignature = KeySignatureEnv[0] + " " + KeySignatureEnv[1];
 
             let obj;
             if (that.name == "scaledegree2") {
-                obj = getNote(
-                    note,
-                    octave,
-                    0,
+                let obj1 = splitScaleDegree(note);
+                note = scaleDegreeToPitchMapping(
                     keySignature,
-                    true,
-                    null,
-                    that.blocks.errorMsg,
-                    that.blocks.logo.synth.inTemperament
+                    obj1[0],
+                    KeySignatureEnv[2],
+                    null
                 );
+                note += obj1[1];
+                obj = [note, octave];
             } else {
                 obj = getNote(
                     note,
@@ -5030,8 +5020,6 @@ function Block(protoblock, blocks, overrideName) {
                     that.blocks.logo.synth.inTemperament
                 );
             }
-
-            
             if (!custom) {
                 obj[0] = obj[0].replace(SHARP, "#").replace(FLAT, "b");
             }
@@ -6688,8 +6676,8 @@ function Block(protoblock, blocks, overrideName) {
         this._basicWheel.colors = colors;
         this._basicWheel.slicePathFunction = slicePath().DonutSlice;
         this._basicWheel.slicePathCustom = slicePath().DonutSliceCustomization();
-        this._basicWheel.slicePathCustom.minRadiusPercent = 0;
-        this._basicWheel.slicePathCustom.maxRadiusPercent = 0.9;
+        this._basicWheel.slicePathCustom.minRadiusPercent = 0.2;
+        this._basicWheel.slicePathCustom.maxRadiusPercent = 1.0;
         this._basicWheel.sliceSelectedPathCustom = this._basicWheel.slicePathCustom;
         this._basicWheel.sliceInitPathCustom = this._basicWheel.slicePathCustom;
         this._basicWheel.titleRotateAngle = 0;
