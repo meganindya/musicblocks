@@ -371,7 +371,7 @@ function setupWidgetBlocks() {
             logo.setDispatchBlock(blk, turtle, listenerName);
 
             let __listener = function(event) {
-                logo.meterWidget.init(logo, logo._meterBlock);
+                logo.meterWidget.init(logo, logo._meterBlock, blk);
                 logo.insideMeterWidget = false;
             };
 
@@ -629,9 +629,8 @@ function setupWidgetBlocks() {
                 logo.pitchSlider = new PitchSlider();
             }
 
-            logo.pitchSlider.Sliders = [];
-
             logo.inPitchSlider = true;
+            logo.pitchSlider.frequencies = [];
 
             let listenerName = "_pitchslider_" + turtle;
             logo.setDispatchBlock(blk, turtle, listenerName);
@@ -1079,7 +1078,7 @@ function setupWidgetBlocks() {
                         switch (logo.tupletRhythms[i][0]) {
                             case "notes":
                             case "simple":
-                                let tupletParam = [logo.tupletParams[i]];
+                                let tupletParam = [logo.tupletParams[logo.tupletRhythms[i][1]]];
                                 tupletParam.push([]);
                                 for (
                                     let j = 2;
