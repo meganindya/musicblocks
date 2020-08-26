@@ -32,7 +32,7 @@ function setupRhythmActions() {
          * @param {String} blkName - note block type name
          * @param {Object} turtle - Turtle object
          * @param {Object} blk - corresponding Block object index in blocks.blockList or custom block number
-         * @param {Function} [_enqueue] - callback
+         * @param {Function} _enqueue - callback
          * @returns {void}
          */
         static playNote(value, blkName, turtle, blk, _enqueue) {
