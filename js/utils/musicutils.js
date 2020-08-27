@@ -135,6 +135,8 @@ const EQUIVALENTSHARPS = {
     "B♭": "A" + SHARP
 };
 const EQUIVALENTNATURALS = { "E♯": "F", "B♯": "C", "C♭": "B", "F♭": "E" };
+const EQUIVALENTACCIDENTALS = { "F": "E♯", "C": "B♯", "B": "C♭", "E": "F♭", "G": "F𝄪", "D": "C𝄪", "A": "G𝄪"};
+
 const EXTRATRANSPOSITIONS = {
     "E♯": ["F", 0],
     "B♯": ["C", 1],
@@ -1798,8 +1800,15 @@ function keySignatureToMode(keySignature) {
     } else {
         var key = parts[0];
     }
-
-    if (NOTESSHARP.indexOf(key) === -1 && NOTESFLAT.indexOf(key) === -1) {
+    if(key === "C" + FLAT) {
+        var keySignature = keySignature
+        var parts = keySignature.split(" ")
+        key = "C" + FLAT
+    } else if (key == "B" + SHARP){
+        var keySignature = keySignature
+        var parts = keySignature.split(" ")
+        key = "B" + SHARP
+    } else if (NOTESSHARP.indexOf(key) === -1 && NOTESFLAT.indexOf(key) === -1) {
         console.debug("Invalid key or missing name; reverting to C.");
         // Is is possible that the key was left out?
         var keySignature = "C " + keySignature;
@@ -1987,8 +1996,19 @@ function _getStepSize(
 }
 
 function _buildScale(keySignature) {
+
+    // FIX ME: temporary hard-coded fix to avoid errors in pitch preview
+    if (keySignature == "C♭ major") {
+        let scale = ["C♭", "D♭", "E♭", "F♭", "G♭", "A♭", "B♭", "C♭"];
+        return [scale, halfSteps];
+    }
+
     var obj = keySignatureToMode(keySignature);
     var myKeySignature = obj[0];
+    if(myKeySignature == "C" + FLAT) {
+        obj = keySignatureToMode("B " + obj[1])
+        myKeySignature = obj[0]
+    }
     if (obj[1] === "CUSTOM") {
         var halfSteps = customMode;
     } else {
@@ -2021,7 +2041,7 @@ function _buildScale(keySignature) {
         ii += halfSteps[i];
         scale.push(thisScale[ii % SEMITONES]);
     }
-
+    
     return [scale, halfSteps];
 }
 
