@@ -4802,10 +4802,9 @@ function Block(protoblock, blocks, overrideName) {
         for (let j in attrList) {
             for (let i in NOTENAMES) {
                 let tempScale = _buildScale(NOTENAMES[i] + attrList[j] + " major")[0];
-                console.log(tempScale);
                 if (tempScale[k-1] == KeySignatureEnv[0]) {
                     key = NOTENAMES[i] + attrList[j];
-                    console.log(key);
+                    console.debug(key);
                     break;
                 }
             }
@@ -4961,6 +4960,15 @@ function Block(protoblock, blocks, overrideName) {
             __pitchPreview();
         };
 
+        let __selectionChangedOctave = () => {
+            let octave = Number(
+                that._octavesWheel.navItems[
+                    that._octavesWheel.selectedNavItemIndex
+                ].title
+            );
+            that.blocks.setPitchOctave(that.connections[0], octave);
+            __pitchPreview();
+        }
 
         let __selectionChangedAccidental = () => {
             selection["attr"] =
@@ -5067,7 +5075,7 @@ function Block(protoblock, blocks, overrideName) {
                     that.blocks.logo.synth.inTemperament
                 );
             } else {
-                console.log(note);
+                // console.debug(note);
                 obj = getNote(
                     note,
                     octave,
@@ -5132,7 +5140,7 @@ function Block(protoblock, blocks, overrideName) {
             for (let i = 0; i < 8; i++) {
                 this._octavesWheel.navItems[
                     i
-                ].navigateFunction = __pitchPreview;
+                ].navigateFunction = __selectionChangedOctave;
             }
         }
 

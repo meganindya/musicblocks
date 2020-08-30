@@ -170,6 +170,7 @@ class Logo {
 
         this.temperamentSelected = [];
         this.customTemperamentDefined = false;
+        this.specialArgs = [];
 
         if (_THIS_IS_MUSIC_BLOCKS_) {
             // Load the default synthesizer
@@ -521,7 +522,7 @@ class Logo {
                             instrumentsFilters[0][instrumentName];
                     }
 
-                    // .. and any effects
+                    // ...and any effects
                     if (instrumentName in instrumentsEffects[0]) {
                         instrumentsEffects[turtle][instrumentName] =
                             instrumentsEffects[0][instrumentName];
@@ -1521,6 +1522,10 @@ class Logo {
                             receivedArg
                         )
                     );
+                }
+                if (logo.turtles.ithTurtle(turtle).singer.inNoteBlock.length > 0 && logo.blocks.blockList[logo.blocks.blockList[blk].connections[i]].name === "currentpitch") {
+                // Re-eval this arg after note block ends to ensure that the current pitch is uptodate.
+                logo.specialArgs.push([args, logo, turtle, blk, receivedArg, null, isflow]);
                 }
             }
         }

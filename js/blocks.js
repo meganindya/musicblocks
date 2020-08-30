@@ -4313,11 +4313,7 @@ function Blocks(activity) {
     this._newLocalArgBlock = async function(name) {
         // name === 1, 2, 3, ...
         var blkname = "arg_" + name;
-        if ("myArg_" + name in this.protoBlockDict) {
-            return;
-        }
-
-        if (blkname in this.protoBlockDict) {
+        if ("myArg_" + blkname in this.protoBlockDict) {
             return;
         }
 
@@ -7107,7 +7103,10 @@ function Blocks(activity) {
             var turtleNotInTrash = 0;
             for (var i = 0; i < this.turtles.turtleList.length; i++) {
                 if (!this.turtles.turtleList[i].inTrash) {
-                    turtleNotInTrash += 1;
+                    // Don't count companion turtle.
+                    if (this.turtles.turtleList[i].companionTurtle === undefined) {
+                        turtleNotInTrash += 1;
+                    }
                 }
             }
 
